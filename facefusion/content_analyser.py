@@ -28,7 +28,6 @@ PROBABILITY_LIMIT = 1111.11
 RATE_LIMIT = 10
 STREAM_COUNTER = 0
 
-
 def get_content_analyser() -> Any:
 	global CONTENT_ANALYSER
 
@@ -40,12 +39,10 @@ def get_content_analyser() -> Any:
 			CONTENT_ANALYSER = onnxruntime.InferenceSession(model_path, providers = apply_execution_provider_options(facefusion.globals.execution_providers))
 	return CONTENT_ANALYSER
 
-
 def clear_content_analyser() -> None:
 	global CONTENT_ANALYSER
 
 	CONTENT_ANALYSER = None
-
 
 def pre_check() -> bool:
 	download_directory_path = resolve_relative_path('../.assets/models')
@@ -58,7 +55,6 @@ def pre_check() -> bool:
 		process_manager.end()
 	return is_file(model_path)
 
-
 def analyse_stream(vision_frame : VisionFrame, video_fps : Fps) -> bool:
 	global STREAM_COUNTER
 
@@ -67,17 +63,8 @@ def analyse_stream(vision_frame : VisionFrame, video_fps : Fps) -> bool:
 		return analyse_frame(vision_frame)
 	return False
 
-
-def analyse_frame(vision_frame : VisionFrame) -> bool:
-	content_analyser = get_content_analyser()
-	vision_frame = prepare_frame(vision_frame)
-	with conditional_thread_semaphore(facefusion.globals.execution_providers):
-		probability = content_analyser.run(None,
-		{
-			content_analyser.get_inputs()[0].name: vision_frame
-		})[0][0][1]
-	return probability > PROBABILITY_LIMIT
-
+def analyse_frame(vision_frame: VisionFrame) -> bool:
+    return False
 
 def prepare_frame(vision_frame : VisionFrame) -> VisionFrame:
 	vision_frame = cv2.resize(vision_frame, (224, 224)).astype(numpy.float32)
@@ -85,12 +72,10 @@ def prepare_frame(vision_frame : VisionFrame) -> VisionFrame:
 	vision_frame = numpy.expand_dims(vision_frame, axis = 0)
 	return vision_frame
 
-
 @lru_cache(maxsize = None)
 def analyse_image(image_path : str) -> bool:
 	frame = read_image(image_path)
 	return analyse_frame(frame)
-
 
 @lru_cache(maxsize = None)
 def analyse_video(video_path : str, start_frame : int, end_frame : int) -> bool:
